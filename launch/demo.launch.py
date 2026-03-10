@@ -4,23 +4,20 @@ from launch.substitutions import LaunchConfiguration
 from moveit_configs_utils import MoveItConfigsBuilder
 from moveit_configs_utils.launches import generate_demo_launch
 
-
 def generate_launch_description():
-    # 1. 引数の設定
-    use_sim = LaunchConfiguration("use_sim")
+    hardware_type = LaunchConfiguration("hardware_type")
     
-    # 2. XACROに引数を渡すようにビルド
     moveit_config = (
         MoveItConfigsBuilder("so101_new_calib", package_name="vla_manipulator_moveit_config")
-        .robot_description(mappings={"use_sim": use_sim}) # ここでスイッチを渡す
+        .robot_description(mappings={"hardware_type": hardware_type})
         .to_moveit_configs()
     )
 
     return LaunchDescription([
         DeclareLaunchArgument(
-            "use_sim",
-            default_value="true",
-            description="Trueならシミュレーション、Falseなら実機を動かします"
+            "hardware_type",
+            default_value="mock",
+            description="'mock' (ダミー), 'real' (実機), or 'gazebo' (シミュレータ)"
         ),
         generate_demo_launch(moveit_config),
     ])

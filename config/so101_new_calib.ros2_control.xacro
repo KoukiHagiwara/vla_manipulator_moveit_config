@@ -1,17 +1,20 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
-    <xacro:macro name="so101_new_calib_ros2_control" params="name initial_positions_file use_sim:=true">
-        <xacro:property name="initial_positions" value="${load_yaml(initial_positions_file)['initial_positions']}"/>
+    <xacro:macro name="so101_new_calib_ros2_control" params="name initial_positions_file hardware_type:=mock">
+        <xacro:property name="initial_positions" value="${xacro.load_yaml(initial_positions_file)['initial_positions']}"/>
 
         <ros2_control name="${name}" type="system">
             <hardware>
-                <xacro:if value="${use_sim}">
+                <xacro:if value="${hardware_type == 'mock'}">
                     <plugin>mock_components/GenericSystem</plugin>
                 </xacro:if>
-                <xacro:unless value="${use_sim}">
+                <xacro:if value="${hardware_type == 'gazebo'}">
+                    <plugin>ign_ros2_control/IgnitionSystem</plugin>
+                </xacro:if>
+                <xacro:if value="${hardware_type == 'real'}">
                     <plugin>feetech_ros2_driver/FeetechHardwareInterface</plugin>
                     <param name="usb_port">/dev/serial/by-id/usb-1a86_USB_Single_Serial_5AF7133194-if00</param>
-                </xacro:unless>
+                </xacro:if>
             </hardware>
 
             <joint name="shoulder_pan">
